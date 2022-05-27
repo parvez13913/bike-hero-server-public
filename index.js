@@ -16,6 +16,7 @@ async function run() {
     try {
         await client.connect();
         const productCollection = client.db('bikeHero').collection('product');
+        const myOrderCollection = client.db('bikeHero').collection('myOrder');
 
         app.get('/products', async (req, res) => {
             const quary = {};
@@ -29,6 +30,12 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const products = await productCollection.findOne(query);
             res.send(products);
+        });
+
+        app.post('/myOrder', async (req, res) => {
+            const myOrder = req.body;
+            const result = await myOrderCollection.insertOne(myOrder);
+            res.send(result);
         });
     }
 
