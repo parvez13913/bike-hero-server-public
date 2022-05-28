@@ -17,6 +17,7 @@ async function run() {
         await client.connect();
         const productCollection = client.db('bikeHero').collection('product');
         const myOrderCollection = client.db('bikeHero').collection('myOrder');
+        const userCollection = client.db('bikeHero').collection('users');
 
         app.get('/products', async (req, res) => {
             const quary = {};
@@ -40,16 +41,32 @@ async function run() {
         });
 
         app.get('/myOrder', async (req, res) => {
-            const quary = {};
+            const email = req.query.email;
+            const quary = { email: email };
             const cursor = myOrderCollection.find(quary);
             const myOrder = await cursor.toArray();
             res.send(myOrder);
         });
 
+        // delete myOrder Data api 
         app.delete('/myOrder/:id', async (req, res) => {
             const id = req.params.id;
             const quary = { _id: ObjectId(id) };
             const result = await myOrderCollection.deleteOne(quary);
+            res.send(result);
+        });
+
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    user,
+                },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         })
     }
