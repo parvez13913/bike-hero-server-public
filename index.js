@@ -32,10 +32,18 @@ async function run() {
             res.send(products);
         });
 
+        // order
         app.post('/myOrder', async (req, res) => {
             const myOrder = req.body;
             const result = await myOrderCollection.insertOne(myOrder);
             res.send(result);
+        });
+
+        app.get('/myOrder', async (req, res) => {
+            const quary = {};
+            const cursor = myOrderCollection.find(quary);
+            const myOrder = await cursor.toArray();
+            res.send(myOrder);
         });
     }
 
