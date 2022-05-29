@@ -35,6 +35,7 @@ async function run() {
         const myOrderCollection = client.db('bikeHero').collection('myOrder');
         const userCollection = client.db('bikeHero').collection('users');
         const updateUserCollection = client.db('bikeHero').collection('updateUsers');
+        const reviewCollection = client.db('bikeHero').collection('review');
 
         app.get('/products', async (req, res) => {
             const quary = {};
@@ -138,7 +139,20 @@ async function run() {
             const user = await userCollection.findOne({ email: email });
             const isAdmin = user.role === 'admin';
             res.send({ admin: isAdmin });
-        })
+        });
+        app.get('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            const isUser = user.role !== 'admin';
+            res.send({ users: isUser });
+        });
+
+        // user review 
+        app.post('/rattings', async (req, res) => {
+            const reviews = req.body;
+            const result = await reviewCollection.insertOne(reviews);
+            res.send(result);
+        });
     }
 
     finally {
