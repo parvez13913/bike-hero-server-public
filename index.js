@@ -41,11 +41,23 @@ async function run() {
             const products = await cursor.toArray();
             res.send(products);
         });
+        app.post('/products', async (req, res) => {
+            const product = req.body;
+            const result = await productCollection.insertOne(product);
+            res.send(result)
+        })
 
         app.get('/products/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const products = await productCollection.findOne(query);
+            res.send(products);
+        });
+        // product Delete api
+        app.delete('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const products = await productCollection.deleteOne(query);
             res.send(products);
         });
 
@@ -113,6 +125,13 @@ async function run() {
             }
 
         });
+
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin });
+        })
     }
 
     finally {
