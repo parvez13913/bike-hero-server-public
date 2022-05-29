@@ -148,10 +148,14 @@ async function run() {
         });
 
         // user review 
-        app.post('/rattings', async (req, res) => {
+        app.post('/reviews', async (req, res) => {
             const reviews = req.body;
             const result = await reviewCollection.insertOne(reviews);
             res.send(result);
+        });
+        app.get('/reviews', async (req, res) => {
+            const reviews = await reviewCollection.find().toArray();
+            res.send(reviews);
         });
     }
 
