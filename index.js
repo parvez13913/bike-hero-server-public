@@ -34,6 +34,7 @@ async function run() {
         const productCollection = client.db('bikeHero').collection('product');
         const myOrderCollection = client.db('bikeHero').collection('myOrder');
         const userCollection = client.db('bikeHero').collection('users');
+        const updateUserCollection = client.db('bikeHero').collection('updateUsers');
 
         app.get('/products', async (req, res) => {
             const quary = {};
@@ -108,6 +109,12 @@ async function run() {
             const users = await userCollection.find().toArray();
             res.send(users);
         });
+        // update user info
+        app.post('/userinfo', async (req, res) => {
+            const updatUser = req.body;
+            const result = await updateUserCollection.insertOne(updatUser);
+            res.send(result);
+        })
         app.put('/user/admin/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             const requester = req.decoded.email;
