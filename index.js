@@ -1,10 +1,11 @@
 const express = require("express");
 const app = express();
+require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
-require('dotenv').config();
 
 
 app.use(cors());
@@ -47,6 +48,19 @@ async function run() {
             const product = req.body;
             const result = await productCollection.insertOne(product);
             res.send(result)
+        });
+
+        app.post('/create-payment-intent', async (req, res) => {
+            const service = req.body;
+            const price = service.price;
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            });
+
+            res.send({ clientSecret: paymentIntent.client_secret });
         })
 
         app.get('/products/:id', async (req, res) => {
@@ -83,6 +97,13 @@ async function run() {
                 return res.status(403).send({ message: 'Forbidden Access' });
             }
         });
+
+        app.get('/myOrder/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const myOrder = await myOrderCollection.findOne(query);
+            res.send(myOrder);
+        })
 
         // delete myOrder Data api 
         app.delete('/myOrder/:id', async (req, res) => {
