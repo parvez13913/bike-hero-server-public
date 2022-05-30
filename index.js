@@ -37,6 +37,7 @@ async function run() {
         const userCollection = client.db('bikeHero').collection('users');
         const updateUserCollection = client.db('bikeHero').collection('updateUsers');
         const reviewCollection = client.db('bikeHero').collection('review');
+        const paymentCollection = client.db('bikeHero').collection('pyment');
 
         app.get('/products', async (req, res) => {
             const quary = {};
@@ -61,7 +62,23 @@ async function run() {
             });
 
             res.send({ clientSecret: paymentIntent.client_secret });
-        })
+        });
+
+        app.patch('/myOrder/:id', async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId,
+                }
+            }
+
+            // const result = await paymentCollection.updateOne(payment);
+            const updatedOrder = await myOrderCollection.updateOne(filter, updateDoc);
+            res.send(updatedOrder);
+        });
 
         app.get('/products/:id', async (req, res) => {
             const id = req.params.id;
